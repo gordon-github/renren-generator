@@ -1,14 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="${package}.${moduleName}.dao.${className}Dao">
+<mapper namespace="${package}.${moduleName}.mapper.${className}Mapper">
 
-	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="${package}.${moduleName}.entity.${className}Entity" id="${classname}Map">
-#foreach($column in $columns)
-        <result property="${column.attrname}" column="${column.columnName}"/>
-#end
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="${package}.${moduleName}.entity.${className}" id="${classname}Map">
+        #foreach($column in $columns)
+            <result property="${column.attrname}" column="${column.columnName}"/>
+        #end
     </resultMap>
-
-
+    <select id="list" resultType="${package}.${moduleName}.entity.${className}">
+        select
+        #foreach($column in $columns)
+            #if($!{velocityCount} == $!{columns.size()})
+                ${column.columnName}
+            #else
+                ${column.columnName},
+            #end
+        #end
+        from ${tableName}
+        <where>
+            #foreach($column in $columns)
+                #if($column.attrType == "String")
+                    <if test="${column.attrname} !=null  and ${column.attrname} !=''">
+                        AND t.${column.columnName} = #{${column.attrname},jdbcType=VARCHAR}
+                    </if>
+                #elseif($column.attrType == "Date")
+                    <if test="${column.attrname} !=null ">
+                        AND t.${column.columnName} = #{${column.attrname},jdbcType=TIMESTAMP}
+                    </if>
+                #else
+                    <if test="${column.attrname} !=null ">
+                        AND t.${column.columnName} = #{${column.attrname}}
+                    </if>
+                #end
+            #end
+        </where>
+    </select>
+    <select id="getById">
+        select
+        #foreach($column in $columns)
+            #if($!{velocityCount} == $!{columns.size()})
+                ${column.columnName}
+            #else
+                ${column.columnName},
+            #end
+        #end
+        from ${tableName}
+        <where>
+            ${pk.attrName} = #{pk.attrname}
+        </where>
+    </select>
+    <update id="updateByConditon">
+        update ${tableName} t
+        <set>
+            #foreach($column in $columns)
+                #if($column.attrType == "String")
+                    <if test="record.${column.attrname} !=null  and record.${column.attrname} !=''">
+                        t.${column.columnName} = #{record.${column.attrname},jdbcType=VARCHAR},
+                    </if>
+                #elseif($column.attrType == "Date")
+                    <if test="record.${column.attrname} !=null ">
+                        t.${column.columnName} = #{record.${column.attrname},jdbcType=TIMESTAMP},
+                    </if>
+                #else
+                    <if test="record.${column.attrname} !=null ">
+                        t.${column.columnName} = #{record.${column.attrname}},
+                    </if>
+                #end
+            #end
+        </set>
+        <where>
+            #foreach($column in $columns)
+                #if($column.attrType == "String")
+                    <if test="condition.${column.attrname} !=null  and condition.${column.attrname} !=''">
+                        AND t.${column.columnName} = #{condition.${column.attrname},jdbcType=VARCHAR}
+                    </if>
+                #elseif($column.attrType == "Date")
+                    <if test="condition.${column.attrname} !=null ">
+                        AND t.${column.columnName} = #{condition.${column.attrname},jdbcType=TIMESTAMP}
+                    </if>
+                #else
+                    <if test="condition.${column.attrname} !=null ">
+                        AND t.${column.columnName} = #{condition.${column.attrname}}
+                    </if>
+                #end
+            #end
+        </where>
+    </update>
+    <update id="updateById">
+        update ${tableName} t
+        <set>
+            #foreach($column in $columns)
+                #if($column.attrType == "String")
+                    <if test="${column.attrname} !=null  and ${column.attrname} !=''">
+                        t.${column.columnName} = #{record.${column.attrname},jdbcType=VARCHAR},
+                    </if>
+                #elseif($column.attrType == "Date")
+                    <if test="${column.attrname} !=null ">
+                        t.${column.columnName} = #{record.${column.attrname},jdbcType=TIMESTAMP},
+                    </if>
+                #else
+                    <if test="${column.attrname} !=null ">
+                        t.${column.columnName} = #{record.${column.attrname}},
+                    </if>
+                #end
+            #end
+        </set>
+        <where>
+            ${pk.attrName} = #{pk.attrname}
+        </where>
+    </update>
+    <insert id="insertByConditon">
+        insert into ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+        #foreach($column in $columns)
+            #if($column.attrType == "String")
+                <if test="${column.attrname} !=null and ${column.attrname} !=''">
+                        ${column.columnName},
+                </if>
+            #elseif($column.attrType == "Date")
+                <if test="${column.attrname} !=null ">
+                        ${column.columnName},
+                </if>
+            #else
+                <if test="${column.attrname} !=null ">
+                        ${column.columnName},
+                </if>
+            #end
+        #end
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+        #foreach($column in $columns)
+            #if($column.attrType == "String")
+                <if test="${column.attrname} !=null and ${column.attrname} !=''">
+                        #{${column.attrname},jdbcType=VARCHAR},
+                </if>
+            #elseif($column.attrType == "Date")
+                <if test="record.${column.attrname} !=null ">
+                        #{${column.attrname},jdbcType=TIMESTAMP},
+                </if>
+            #else
+                <if test="record.${column.attrname} !=null ">
+                   #{${column.attrname}},
+                </if>
+            #end
+        #end
+        </trim>>
+    </insert>
 </mapper>
